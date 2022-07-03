@@ -1,4 +1,5 @@
 from __future__ import division
+import numpy as np
 from math import ceil, log, sqrt
 from scipy.stats import binom
 
@@ -12,6 +13,9 @@ def C_MN(n: int, K: int):
     "NML Computation Algorithms for Tree-Structured Multinomial Bayesian Networks"
     https://pubmed.ncbi.nlm.nih.gov/18382603/
 
+    "Computing the Multinomial Stochastic Complexity in Sub-Linear Time"
+    http://pgm08.cs.aau.dk/Papers/31_Paper.pdf
+
     Args
     ----------
         n (int): sample size of a dataset
@@ -19,23 +23,28 @@ def C_MN(n: int, K: int):
 
     Returns
     ----------
-        float: Parametric Complexity of Multinomals
+        float: (Approximated) Multinomal Normalizing Sum
 
     """
 
-    if K == 1:
-        C_1 = 1
-        return C_1
+    total = 1
+    b = 1
+    d = 16 # 16 digit precision
 
-    elif K == 2:
-        # calculate the following equation
-        # Σ_(r1+r2=n) n_C_r1 * (r1/n)^r1 * (r2/n)^r2
-        C_2 = 0
-        for r in range(n+1):
-            C_2 += binom.pmf(k=r, n=n, p=r/n) # add nCr (r/n)^r (1 - r/n)^(n-r)
-        return C_2
+    bound = int(ceil(2 + sqrt( -2 * n * np.log(2 * 10**(-d) - 100 ** (-d)))))
 
-    return C_MN(n=n, K=K-1) + (n/(K-2)) * C_MN(n=n, K=K-2)
+    for k in range(1, bound + 1):
+        b = (n - k + 1) / n * b
+        total += b
+
+    old_sum = 1
+
+    for j in range(3, K + 1):
+        new_sum = total + (n * old_sum) / (j - 2)
+        old_sum = total
+        total = new_sum
+
+    return total
 
 
 def parametric_complexity(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
@@ -48,8 +57,6 @@ def parametric_complexity(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndisti
         Y (sequence): sequence of discrete outcomes
         X_ndistinct_vals (int): number of distinct values of the multinomial r.v X.
         Y_ndistinct_vals (int): number of distinct values of the multinomial r.v Y.
-
-
 
     Returns
     ----------
@@ -91,11 +98,4 @@ if __name__ == "__main__":
     # unit test for parametric complexity
     pc_cf = parametric_complexity(x0, x1, model_type="confounder")
     print(pc_cf)
-
-
-
-
-
-
-
 
