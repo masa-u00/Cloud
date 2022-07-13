@@ -144,6 +144,8 @@ def update_regression(C, E, f, max_niterations=10000):
                     else:
                         f_[c_value] = e_value
 
+                if len(set(f_.values())) == 1:
+                    continue
                 neglikelihood = cause_effect_negloglikelihood(C, E, f_)
 
                 if neglikelihood < best_likelihood:
