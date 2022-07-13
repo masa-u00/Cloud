@@ -5,6 +5,8 @@ from math import ceil, log, sqrt
 from collections import Counter, defaultdict
 import itertools
 
+MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
+
 def log2(n):
     return log(n or 1, 2)
 
@@ -276,13 +278,12 @@ def sc(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
 
     # add function code length
     if model_type == "to":
-        stochastic_complexity += X_ndistinct_vals * log2(Y_ndistinct_vals)
+        stochastic_complexity += log2(Y_ndistinct_vals**(X_ndistinct_vals-1) - 1)
     elif model_type == "gets":
-        stochastic_complexity += Y_ndistinct_vals * log2(X_ndistinct_vals)
+        stochastic_complexity += log2(X_ndistinct_vals**(Y_ndistinct_vals-1) - 1)
 
     return stochastic_complexity
 
-MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
 
 def ndm(X, Y, ):
     """NML Discrete Model
