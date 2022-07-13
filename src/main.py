@@ -301,14 +301,14 @@ def ndm(X, Y, ):
 if __name__ == "__main__":
     # unit test
     # usage :
-    # $ time python sc.py
+    # $ time python main.py
     import numpy as np
     import argparse
-    parser = argparse.ArgumentParser(description="BBCI single experiment")
-    parser.add_argument("--N", type=int, default=1000, help="number of samples")
+    parser = argparse.ArgumentParser(description="NDM single experiment")
+    parser.add_argument("--N", type=int, default=10000, help="number of samples")
     parser.add_argument("--m0", type=int, default=4, help="number of distinct values of the multinomial r.v X")
     parser.add_argument("--m1", type=int, default=5, help="number of distinct values of the multinomial r.v Y")
-    args = parser.parse_args([])
+    args = parser.parse_args()
 
 
     # prepare simple dataset
