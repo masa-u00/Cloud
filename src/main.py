@@ -312,11 +312,14 @@ if __name__ == "__main__":
 
 
     # prepare simple dataset
-    x0 = np.random.randint(args.m0, size=args.N)
-    x1 = (x0 + np.random.randint(args.m1, size=args.N)) % args.m1
+    rand0 = [np.random.random() for _ in range(args.m0)]
+    pvals0 = [rand_f / sum(rand0) for rand_f in rand0]
+    rand1 = [np.random.random() for _ in range(args.m1)]
+    pvals1 = [rand_f / sum(rand1) for rand_f in rand1]
+    x0 = np.random.choice(a=range(args.m0), p=pvals0, size=args.N)
+    x1 = (x0 + np.random.choice(a=range(args.m1), p=pvals1, size=args.N)) % args.m1
 
-
-    # unit test for parametric complexity
+    # unit test for proposed method
     results = ndm(x0, x1)
     results.sort(key=lambda x: x[0])
     print(results)
