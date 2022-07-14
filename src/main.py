@@ -44,14 +44,21 @@ def C_MN(n: int, K: int):
         b = (n - k + 1) / n * b
         total += b
 
-    old_sum = 1
-
+    log_old_sum = log2(1.0)
+    log_total = log2(total)
+    log_n = log2(n)
     for j in range(3, K + 1):
-        new_sum = total + (n * old_sum) / (j - 2)
-        old_sum = total
-        total = new_sum
+        log_x = log_n + log_old_sum - log_total - log2(j - 2)
+        x = 2 ** log_x
+        log_one_plus_x = log2(1 + x)
+        log_new_sum = log_total + log_one_plus_x
+        log_old_sum = log_total
+        log_total = log_new_sum
 
-    return total
+    if K == 1:
+        log_total = log2(1.0)
+
+    return log_total
 
 def parametric_complexity(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
     """Computes the Parametric Complexity of Multinomals.
@@ -77,10 +84,10 @@ def parametric_complexity(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndisti
 
 
     if model_type == "confounder":
-        return  log2(C_MN(n=n, K=X_ndistinct_vals * Y_ndistinct_vals))
+        return  C_MN(n=n, K=X_ndistinct_vals * Y_ndistinct_vals)
 
     else:
-        return  log2(C_MN(n=n, K=X_ndistinct_vals)) + log2(C_MN(n=n, K=Y_ndistinct_vals))
+        return  C_MN(n=n, K=X_ndistinct_vals) + C_MN(n=n, K=Y_ndistinct_vals)
 
 
 # ref: https://github.molgen.mpg.de/EDA/cisc/blob/master/formatter.py
