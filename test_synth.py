@@ -110,7 +110,9 @@ if __name__ == "__main__":
                 continue
 
             nsamples += 1
-            ndm_score = ndm(X, Y)[0][1]
+            ndm_score = ndm(X, Y)
+            ndm_score.sort(key=lambda x: x[0])
+            ndm_score = ndm_score[0][1]
 
             if ndm_score == "to":
                 nc_ndm += 1
