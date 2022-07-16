@@ -1,11 +1,15 @@
 from __future__ import division
+import os
 import sys
 import numpy as np
 from math import ceil, log, sqrt
 from collections import Counter, defaultdict
 import itertools
+import pickle
 
-MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
+#MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
+MODEL_CANDIDATES = ["to", "gets"]
+
 
 def log2(n):
     return log(n or 1, 2)
@@ -33,9 +37,19 @@ def C_MN(n: int, K: int):
 
     """
 
+    with open("src/model_cost_hash.pkl", mode="rb") as f:
+        try:
+            while True:
+                model_cost_dict = pickle.load(f)
+                if list(model_cost_dict.keys())[0] == K:
+                    log_total = model_cost_dict[K]
+                    return log_total
+        except EOFError:
+            pass
+
     total = 1
     b = 1
-    d = 16 # 16 digit precision
+    d = 10 # 10 digit precision
 
     #bound = int(ceil(2 + sqrt( -2 * n * np.log(2 * 10**(-d) - 100 ** (-d)))))
     bound = int(ceil(2 + sqrt(2 * n * d * log(10))))  # using equation (38)
@@ -57,6 +71,9 @@ def C_MN(n: int, K: int):
 
     if K == 1:
         log_total = log2(1.0)
+
+    with open("src/model_cost_hash.pkl", mode="ab") as f:
+        pickle.dump({K: log_total}, f)
 
     return log_total
 
@@ -119,7 +136,7 @@ def map_to_majority(X, Y):
         f[x] = frequent_y
     return f
 
-def update_regression(C, E, f, max_niterations=10000):
+def update_regression(C, E, f, max_niterations=1000):
     """Update discrete regression with C as a cause variable and Y as a effect variable
     so that it maximize likelihood
     Args
@@ -146,12 +163,8 @@ def update_regression(C, E, f, max_niterations=10000):
                 if cand_e == f[c_to_map]:
                     continue
 
-                f_ = dict()
-                for c_value, e_value in f.items():
-                    if c_value == c_to_map:
-                        f_[c_value] = cand_e
-                    else:
-                        f_[c_value] = e_value
+                f_ = f.copy()
+                f_[c_to_map] = cand_e
 
                 if len(set(f_.values())) == 1:
                     continue
@@ -190,7 +203,6 @@ def cause_effect_negloglikelihood(C, E, func):
     supp_E = list(set(E))
 
     C_freqs = Counter(C)
-    E_freqs = Counter(E)
     n = len(C)
 
     pair_cnt = defaultdict(lambda: defaultdict(int))
@@ -325,9 +337,14 @@ if __name__ == "__main__":
     pvals1 = [rand_f / sum(rand1) for rand_f in rand1]
     x0 = np.random.choice(a=range(args.m0), p=pvals0, size=args.N)
     x1 = (x0 + np.random.choice(a=range(args.m1), p=pvals1, size=args.N)) % args.m1
+    x2 = np.random.choice(a=range(args.m1), p=pvals1, size=args.N)
 
     # unit test for proposed method
     results = ndm(x0, x1)
+    results.sort(key=lambda x: x[0])
+    print(results)
+
+    results = ndm(x0, x2)
     results.sort(key=lambda x: x[0])
     print(results)
 
