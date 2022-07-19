@@ -56,7 +56,7 @@ def map_randomly(dom_f, img_f):
 
 def generate_additive_N(n):
     t = random.randint(1, 7)
-    suppN = range(-t, t + 1)
+    suppN = range(2 * t)
     p_nums = [np.random.random() for _ in range(len(suppN))]
     p_vals = [v / sum(p_nums) for v in p_nums]
     N = np.random.choice(a=suppN, p=p_vals, size=n)
@@ -88,11 +88,11 @@ def identifiable(dom_f, f, N):
     return not non_overlapping_noise
 
 if __name__ == "__main__":
-    nsim = 100
+    nsim = 1000
     sample_size = 1000
     img_f = range(-7, 8)
-    srcsX = ["poisson"]#["uniform", "binomial", "negativeBinomial",
-         #"geometric", "hypergeometric", "poisson", "multinomial"]
+    srcsX = ["uniform", "binomial", "negativeBinomial",
+         "geometric", "hypergeometric", "poisson", "multinomial"]
     print("-" * 80)
     print("%18s%10s" % ("X", "NDM"))
     print("-" * 80)
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 #                continue
 
             nsamples += 1
-            sys.stdout.write("\r{}/{}\n".format(nsamples, nsim))
+            sys.stdout.write("\r{}/{}".format(nsamples, nsim))
             sys.stdout.flush()
             ndm_score = ndm(X, Y)
             ndm_score.sort(key=lambda x: x[0])
@@ -132,7 +132,6 @@ if __name__ == "__main__":
         fp.write(
             "%s\t%.2f\n" % (srcX, acc_ndm)
         )
-        break
     print("-" * 80)
     sys.stdout.flush()
     fp.close()
