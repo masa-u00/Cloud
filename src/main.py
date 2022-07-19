@@ -7,8 +7,10 @@ from collections import Counter, defaultdict
 import itertools
 import pickle
 
-#MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
-MODEL_CANDIDATES = ["to", "gets"]
+from sklearn.preprocessing import LabelEncoder
+
+MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
+#MODEL_CANDIDATES = ["to", "gets"]
 
 
 def log2(n):
@@ -136,7 +138,7 @@ def map_to_majority(X, Y):
         f[x] = frequent_y
     return f
 
-def update_regression(C, E, f, max_niterations=1000):
+def update_regression(C, E, f, max_niterations=100):
     """Update discrete regression with C as a cause variable and Y as a effect variable
     so that it maximize likelihood
     Args
@@ -146,9 +148,17 @@ def update_regression(C, E, f, max_niterations=1000):
         f (dict): map from C to Y
 
     """
-    cur_likelihood =  cause_effect_negloglikelihood(C, E, f)
     supp_C = list(set(C))
     supp_E = list(set(E))
+    mod_E = len(supp_E)
+    n = len(C)
+    
+    # N_E's log likelihood
+    # optimize f to minimize N_E's log likelihood
+    cur_likelihood = 0
+    res = [(e - f[c]) % mod_E for c, e in zip(C, E)]
+    for freq in Counter(res).values():
+        cur_likelihood += freq * (log2(n) - log2(freq))
 
     j = 0
     minimized = True
@@ -168,7 +178,11 @@ def update_regression(C, E, f, max_niterations=1000):
 
                 if len(set(f_.values())) == 1:
                     continue
-                neglikelihood = cause_effect_negloglikelihood(C, E, f_)
+
+                neglikelihood = 0
+                res = [(e - f_[c]) % mod_E for c, e in zip(C, E)]
+                for freq in Counter(res).values():
+                    neglikelihood += freq * (log2(n) - log2(freq))
 
                 if neglikelihood < best_likelihood:
                     best_likelihood = neglikelihood
@@ -307,6 +321,11 @@ def sc(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
 def ndm(X, Y, ):
     """NML Discrete Model
     """
+    # prepare data
+    le_X = LabelEncoder()
+    X = le_X.fit_transform(X)
+    le_Y = LabelEncoder()
+    Y = le_Y.fit_transform(Y)
 
     results = []
 
