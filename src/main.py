@@ -1,11 +1,17 @@
 from __future__ import division
+import os
 import sys
 import numpy as np
 from math import ceil, log, sqrt
 from collections import Counter, defaultdict
 import itertools
+import pickle
+
+from sklearn.preprocessing import LabelEncoder
 
 MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
+#MODEL_CANDIDATES = ["to", "gets"]
+
 
 def log2(n):
     return log(n or 1, 2)
@@ -33,9 +39,19 @@ def C_MN(n: int, K: int):
 
     """
 
+    with open("src/model_cost_hash.pkl", mode="rb") as f:
+        try:
+            while True:
+                model_cost_dict = pickle.load(f)
+                if list(model_cost_dict.keys())[0] == K:
+                    log_total = model_cost_dict[K]
+                    return log_total
+        except EOFError:
+            pass
+
     total = 1
     b = 1
-    d = 16 # 16 digit precision
+    d = 10 # 10 digit precision
 
     #bound = int(ceil(2 + sqrt( -2 * n * np.log(2 * 10**(-d) - 100 ** (-d)))))
     bound = int(ceil(2 + sqrt(2 * n * d * log(10))))  # using equation (38)
@@ -44,14 +60,24 @@ def C_MN(n: int, K: int):
         b = (n - k + 1) / n * b
         total += b
 
-    old_sum = 1
-
+    log_old_sum = log2(1.0)
+    log_total = log2(total)
+    log_n = log2(n)
     for j in range(3, K + 1):
-        new_sum = total + (n * old_sum) / (j - 2)
-        old_sum = total
-        total = new_sum
+        log_x = log_n + log_old_sum - log_total - log2(j - 2)
+        x = 2 ** log_x
+        log_one_plus_x = log2(1 + x)
+        log_new_sum = log_total + log_one_plus_x
+        log_old_sum = log_total
+        log_total = log_new_sum
 
-    return total
+    if K == 1:
+        log_total = log2(1.0)
+
+    with open("src/model_cost_hash.pkl", mode="ab") as f:
+        pickle.dump({K: log_total}, f)
+
+    return log_total
 
 def parametric_complexity(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
     """Computes the Parametric Complexity of Multinomals.
@@ -77,10 +103,10 @@ def parametric_complexity(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndisti
 
 
     if model_type == "confounder":
-        return  log2(C_MN(n=n, K=X_ndistinct_vals * Y_ndistinct_vals))
+        return  C_MN(n=n, K=X_ndistinct_vals * Y_ndistinct_vals)
 
     else:
-        return  log2(C_MN(n=n, K=X_ndistinct_vals)) + log2(C_MN(n=n, K=Y_ndistinct_vals))
+        return  C_MN(n=n, K=X_ndistinct_vals) + C_MN(n=n, K=Y_ndistinct_vals)
 
 
 # ref: https://github.molgen.mpg.de/EDA/cisc/blob/master/formatter.py
@@ -112,7 +138,7 @@ def map_to_majority(X, Y):
         f[x] = frequent_y
     return f
 
-def update_regression(C, E, f, max_niterations=10000):
+def update_regression(C, E, f, max_niterations=100):
     """Update discrete regression with C as a cause variable and Y as a effect variable
     so that it maximize likelihood
     Args
@@ -122,9 +148,17 @@ def update_regression(C, E, f, max_niterations=10000):
         f (dict): map from C to Y
 
     """
-    cur_likelihood =  cause_effect_negloglikelihood(C, E, f)
     supp_C = list(set(C))
     supp_E = list(set(E))
+    mod_E = len(supp_E)
+    n = len(C)
+    
+    # N_E's log likelihood
+    # optimize f to minimize N_E's log likelihood
+    cur_likelihood = 0
+    res = [(e - f[c]) % mod_E for c, e in zip(C, E)]
+    for freq in Counter(res).values():
+        cur_likelihood += freq * (log2(n) - log2(freq))
 
     j = 0
     minimized = True
@@ -139,16 +173,16 @@ def update_regression(C, E, f, max_niterations=10000):
                 if cand_e == f[c_to_map]:
                     continue
 
-                f_ = dict()
-                for c_value, e_value in f.items():
-                    if c_value == c_to_map:
-                        f_[c_value] = cand_e
-                    else:
-                        f_[c_value] = e_value
+                f_ = f.copy()
+                f_[c_to_map] = cand_e
 
                 if len(set(f_.values())) == 1:
                     continue
-                neglikelihood = cause_effect_negloglikelihood(C, E, f_)
+
+                neglikelihood = 0
+                res = [(e - f_[c]) % mod_E for c, e in zip(C, E)]
+                for freq in Counter(res).values():
+                    neglikelihood += freq * (log2(n) - log2(freq))
 
                 if neglikelihood < best_likelihood:
                     best_likelihood = neglikelihood
@@ -183,7 +217,6 @@ def cause_effect_negloglikelihood(C, E, func):
     supp_E = list(set(E))
 
     C_freqs = Counter(C)
-    E_freqs = Counter(E)
     n = len(C)
 
     pair_cnt = defaultdict(lambda: defaultdict(int))
@@ -288,6 +321,11 @@ def sc(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
 def ndm(X, Y, ):
     """NML Discrete Model
     """
+    # prepare data
+    le_X = LabelEncoder()
+    X = le_X.fit_transform(X)
+    le_Y = LabelEncoder()
+    Y = le_Y.fit_transform(Y)
 
     results = []
 
@@ -318,9 +356,14 @@ if __name__ == "__main__":
     pvals1 = [rand_f / sum(rand1) for rand_f in rand1]
     x0 = np.random.choice(a=range(args.m0), p=pvals0, size=args.N)
     x1 = (x0 + np.random.choice(a=range(args.m1), p=pvals1, size=args.N)) % args.m1
+    x2 = np.random.choice(a=range(args.m1), p=pvals1, size=args.N)
 
     # unit test for proposed method
     results = ndm(x0, x1)
+    results.sort(key=lambda x: x[0])
+    print(results)
+
+    results = ndm(x0, x2)
     results.sort(key=lambda x: x[0])
     print(results)
 
