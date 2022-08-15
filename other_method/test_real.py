@@ -6,6 +6,8 @@ methods on real-world discrete cause-effect pairs.
 from __future__ import division
 import enum
 import os
+import sys
+sys.path.append("..")
 
 import numpy as np
 import pandas as pd
@@ -16,12 +18,29 @@ from dc import dc
 from entropic import entropic
 from formatter import to_nested
 from measures import ChiSquaredTest, Entropy, StochasticComplexity
+from src import ndm
 
 
 class ScoreType(enum.Enum):
     PVAL = 1,
     INFO = 2
 
+def ndm_print(method_name, score, llabel, rlabel):
+    score.sort(key=lambda x: x[0])
+    pred = score[0][1]
+    if pred == "to":
+        arrow = "⇒"
+    elif pred == "gets":
+        arrow = "⇐"
+    elif pred == "indep":
+        arrow = "⫫"
+    elif pred == "confounder":
+        arrow = "⇐  C ⇒"
+    conf = abs(score[0][0] - score[1][0])
+    out_str = "%s:: %s %s %s\t Δ=%.2f" % (method_name,
+                                          llabel, arrow, rlabel, conf)
+    print(out_str)
+        
 
 def pprint(method_name, score, score_type, llabel, rlabel):
     level = 0.05
@@ -62,6 +81,7 @@ def test_car():
         cisc_score = cisc(X, Y)
         acid_score = anm(X, Y, Entropy)
         crisp_score = anm(X, Y, StochasticComplexity, enc_func=True)
+        ndm_score = ndm(X, Y)
 
         pprint("   dc", dc_score, ScoreType.INFO, X_labels[i], Y_label)
         pprint("  ent", ent_score, ScoreType.INFO, X_labels[i], Y_label)
@@ -69,6 +89,7 @@ def test_car():
         pprint(" cisc", cisc_score, ScoreType.INFO, X_labels[i], Y_label)
         pprint(" acid", acid_score, ScoreType.INFO, X_labels[i], Y_label)
         pprint("crisp", crisp_score, ScoreType.INFO, X_labels[i], Y_label)
+        ndm_print("  ndm", ndm_score, X_labels[i], Y_label)
 
 
 def test_abalone():
@@ -89,6 +110,7 @@ def test_abalone():
         cisc_score = cisc(X, Y)
         acid_score = anm(X, Y, Entropy)
         crisp_score = anm(X, Y, StochasticComplexity, enc_func=True)
+        ndm_score = ndm(X, Y)
 
         pprint("   dc", dc_score, ScoreType.INFO, colnames[0], colnames[i])
         pprint("  ent", ent_score, ScoreType.INFO, colnames[0], colnames[i])
@@ -96,6 +118,7 @@ def test_abalone():
         pprint(" cisc", cisc_score, ScoreType.INFO, colnames[0], colnames[i])
         pprint(" acid", acid_score, ScoreType.INFO, colnames[0], colnames[i])
         pprint("crisp", crisp_score, ScoreType.INFO, colnames[0], colnames[i])
+        ndm_print("  ndm", ndm_score, colnames[0], colnames[i])
 
 
 def test_nlschools():
@@ -112,6 +135,7 @@ def test_nlschools():
     cisc_score = cisc(X, Y)
     acid_score = anm(X, Y, Entropy)
     crisp_score = anm(X, Y, StochasticComplexity, enc_func=True)
+    ndm_score = ndm(X, Y)
 
     pprint("   dc", dc_score, ScoreType.INFO, "score", "status")
     pprint("  ent", ent_score, ScoreType.INFO, "score", "status")
@@ -119,6 +143,7 @@ def test_nlschools():
     pprint(" cisc", cisc_score, ScoreType.INFO, "score", "status")
     pprint(" acid", acid_score, ScoreType.INFO, "score", "status")
     pprint("crisp", crisp_score, ScoreType.INFO, "score", "status")
+    ndm_print("  ndm", ndm_score, "score", "status")
 
 
 def test_horse_colic():
@@ -147,6 +172,7 @@ def test_horse_colic():
     cisc_score = cisc(abdomen, surgical)
     acid_score = anm(abdomen, surgical, Entropy)
     crisp_score = anm(abdomen, surgical, StochasticComplexity, enc_func=True)
+    ndm_score = ndm(abdomen, surgical)
 
     pprint("   dc", dc_score, ScoreType.INFO, "abdomen", "surgical")
     pprint("  ent", ent_score, ScoreType.INFO, "abdomen", "surgical")
@@ -154,6 +180,7 @@ def test_horse_colic():
     pprint(" cisc", cisc_score, ScoreType.INFO, "abdomen", "surgical")
     pprint(" acid", acid_score, ScoreType.INFO, "abdomen", "surgical")
     pprint("crisp", crisp_score, ScoreType.INFO, "abdomen", "surgical")
+    ndm_print("  ndm", ndm_score, "abdomen", "surgical")
 
 
 if __name__ == "__main__":

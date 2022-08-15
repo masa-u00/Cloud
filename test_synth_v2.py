@@ -45,7 +45,7 @@ def map_randomly(dom_f, img_f):
 def test_accuracy_4types(args):
     nsim = 1000
     sample_sizes = [100, 1000, 10000, 100000]
-    causal_types = ["to", "indep", "confounder"]
+    causal_types = [ "confounder"]
 
     img_f = range(args.img)
     dom_f = range(args.dom)

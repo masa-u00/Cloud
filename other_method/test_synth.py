@@ -19,6 +19,8 @@ from entropic import entropic
 from formatter import to_nested
 from measures import ChiSquaredTest, Entropy, StochasticComplexity
 
+random.seed(0)
+np.random.seed(0)
 
 def reverse_argsort(sequence):
     indices = range(len(sequence))
@@ -69,8 +71,11 @@ def generate_X(type, size):
 
 def generate_additive_N(n):
     t = random.randint(1, 7)
-    suppN = range(-t, t + 1)
-    N = [random.choice(suppN) for i in range(n)]
+    suppN = range(2 * t)
+    p_nums = [np.random.random() for _ in range(len(suppN))]
+    p_vals = [v / sum(p_nums) for v in p_nums]
+    N = np.random.choice(a=suppN, p=p_vals, size=n)
+    #N = [random.choice(suppN) for i in range(n)]
     return N
 
 

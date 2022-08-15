@@ -92,7 +92,7 @@ if __name__ == "__main__":
     sample_size = 1000
     img_f = range(-7, 8)
     srcsX = ["uniform", "binomial", "negativeBinomial",
-         "geometric", "hypergeometric", "poisson", "multinomial"]
+            "geometric", "hypergeometric", "poisson", "multinomial"]
     print("-" * 80)
     print("%18s%10s" % ("X", "NDM"))
     print("-" * 80)
