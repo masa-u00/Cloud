@@ -45,7 +45,7 @@ def map_randomly(dom_f, img_f):
 def test_accuracy_4types(args):
     nsim = 1000
     sample_sizes = [100, 1000, 10000]
-    causal_types = ["indep"]
+    causal_types = ["to", "confounder"]
 
     img_f = range(args.img)
     dom_f = range(args.dom)
@@ -93,6 +93,7 @@ def test_accuracy_4types(args):
                 if Cloud_score == causal_type:
                     nc_Cloud += 1
 
+            print(dd)
             acc_Cloud = nc_Cloud * 100 / nsim
             print("%18s%18s%10.2f" % (causal_type, sample_size, acc_Cloud))
             sys.stdout.flush()
