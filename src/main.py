@@ -38,21 +38,21 @@ def C_MN(n: int, K: int):
 
     """
 
-    with open(
-            os.path.join(package_dir, "model_cost_hash.pkl"), 
-            mode="rb") as f:
-        try:
-            while True:
-                model_cost_dict = pickle.load(f)
-                if list(model_cost_dict.keys())[0] == K:
-                    log_total = model_cost_dict[K]
-                    return log_total
-        except EOFError:
-            pass
+#    with open(
+#            os.path.join(package_dir, "model_cost_hash.pkl"),
+#            mode="rb") as f:
+#        try:
+#            while True:
+#                model_cost_dict = pickle.load(f)
+#                if list(model_cost_dict.keys())[0] == K:
+#                    log_total = model_cost_dict[K]
+#                    return log_total
+#        except EOFError:
+#            pass
 
     total = 1
     b = 1
-    d = 10 # 10 digit precision
+    d = 16 # 10 digit precision
 
     #bound = int(ceil(2 + sqrt( -2 * n * np.log(2 * 10**(-d) - 100 ** (-d)))))
     bound = int(ceil(2 + sqrt(2 * n * d * log(10))))  # using equation (38)
@@ -75,10 +75,10 @@ def C_MN(n: int, K: int):
     if K == 1:
         log_total = log2(1.0)
 
-    with open(
-            os.path.join(package_dir, "model_cost_hash.pkl"),
-            mode="ab") as f:
-        pickle.dump({K: log_total}, f)
+#    with open(
+#            os.path.join(package_dir, "model_cost_hash.pkl"),
+#            mode="ab") as f:
+#        pickle.dump({K: log_total}, f)
 
     return log_total
 
@@ -141,7 +141,7 @@ def map_to_majority(X, Y):
         f[x] = frequent_y
     return f
 
-def update_regression(C, E, f, max_niterations=100):
+def update_regression(C, E, f, max_niterations=1000):
     """Update discrete regression with C as a cause variable and Y as a effect variable
     so that it maximize likelihood
     Args
@@ -155,7 +155,7 @@ def update_regression(C, E, f, max_niterations=100):
     supp_E = list(set(E))
     mod_E = len(supp_E)
     n = len(C)
-    
+
     # N_E's log likelihood
     # optimize f to minimize N_E's log likelihood
     cur_likelihood = 0
@@ -373,7 +373,7 @@ if __name__ == "__main__":
     import numpy as np
     import argparse
     parser = argparse.ArgumentParser(description="NDM single experiment")
-    parser.add_argument("--N", type=int, default=10000, help="number of samples")
+    parser.add_argument("--N", type=int, default=100, help="number of samples")
     parser.add_argument("--m0", type=int, default=4, help="number of distinct values of the multinomial r.v X")
     parser.add_argument("--m1", type=int, default=5, help="number of distinct values of the multinomial r.v Y")
     args = parser.parse_args()
