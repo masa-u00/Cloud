@@ -92,7 +92,7 @@ if __name__ == "__main__":
             nsamples += 1
             sys.stdout.write("\r{}/{}".format(nsamples, nsim))
             sys.stdout.flush()
-            Cloud_score = Cloud(X, Y)
+            Cloud_score = Cloud(X, Y, n_candidates=2)
             Cloud_score.sort(key=lambda x: x[0])
             Cloud_score = Cloud_score[0][1]
 

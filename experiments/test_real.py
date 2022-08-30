@@ -43,7 +43,7 @@ def test_abalone():
     colnames = ["sex", "length", "diameter", "height"]
     for i in range(1, ncols):
         Y = data[:, i]
-        Cloud_score = Cloud(X, Y, n_candidates=2)
+        Cloud_score = Cloud(X, Y, n_candidates=4)
         Cloud_print("  Cloud", Cloud_score, colnames[0], colnames[i])
 
 
@@ -55,7 +55,7 @@ def test_nlschools():
     X = data[:, 0]
     Y = data[:, 1]
 
-    Cloud_score = Cloud(X, Y, n_candidates=2)
+    Cloud_score = Cloud(X, Y, n_candidates=4)
     Cloud_print("  Cloud", Cloud_score, "score", "status")
 
 
@@ -79,7 +79,7 @@ def test_horse_colic():
     surgical = np.concatenate((surgical_train, surgical_test))
     assert len(abdomen) == len(surgical)
 
-    Cloud_score = Cloud(abdomen, surgical, n_candidates=2)
+    Cloud_score = Cloud(abdomen, surgical, n_candidates=4)
     Cloud_print("  Cloud", Cloud_score, "abdomen", "surgical")
 
 

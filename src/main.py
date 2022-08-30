@@ -39,7 +39,7 @@ def C_MN(n: int, K: int):
     """
 
 #    with open(
-#            os.path.join(package_dir, "model_cost_hash.pkl"),
+#            os.path.join(package_dir, "model_cost_hash.pkl"), 
 #            mode="rb") as f:
 #        try:
 #            while True:
@@ -52,7 +52,7 @@ def C_MN(n: int, K: int):
 
     total = 1
     b = 1
-    d = 16 # 10 digit precision
+    d = 10 # 10 digit precision
 
     #bound = int(ceil(2 + sqrt( -2 * n * np.log(2 * 10**(-d) - 100 ** (-d)))))
     bound = int(ceil(2 + sqrt(2 * n * d * log(10))))  # using equation (38)

@@ -44,8 +44,8 @@ def map_randomly(dom_f, img_f):
 
 def test_accuracy_4types(args):
     nsim = 1000
-    sample_sizes = [100, 1000, 10000]
-    causal_types = ["to", "confounder"]
+    sample_sizes = [200,]# 1000, 10000, 100000]
+    causal_types = ["to", "indep", "confounder"]
 
     img_f = range(args.img)
     dom_f = range(args.dom)
@@ -86,7 +86,7 @@ def test_accuracy_4types(args):
 
                 sys.stdout.write("\r{}/{}".format(i+1, nsim))
                 sys.stdout.flush()
-                Cloud_score = Cloud(X, Y)
+                Cloud_score = Cloud(X, Y, n_candidates=4)
                 Cloud_score.sort(key=lambda x: x[0])
                 Cloud_score = Cloud_score[0][1]
                 dd[causal_type][Cloud_score][sample_size] += 1
@@ -111,9 +111,9 @@ def test_accuracy_4types(args):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="systhetic experiment")
-    parser.add_argument("--dom", type=int, default=20, help="domain size")
-    parser.add_argument("--img", type=int, default=20, help="image size")
-    parser.add_argument("--confounder", type=int, default=400, help="domain size of confounder")
+    parser.add_argument("--dom", type=int, default=10, help="domain size")
+    parser.add_argument("--img", type=int, default=10, help="image size")
+    parser.add_argument("--confounder", type=int, default=100, help="domain size of confounder")
     args = parser.parse_args()
 
     test_accuracy_4types(args)
