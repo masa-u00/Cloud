@@ -12,6 +12,7 @@ import time
 import numpy as np
 import pandas as pd
 
+from src import Cloud
 from anm import anm
 from cisc import cisc
 from dc import dc
@@ -148,7 +149,7 @@ def test_accuracy_data_type():
              "geometric", "hypergeometric", "poisson", "multinomial"]
     print("-" * 80)
     print("%18s%10s%10s%10s%10s%10s%10s" %
-          ("X", "DC", "ENT", "DR", "CISC", "ACID", "CRISP"))
+          ("X", "ENT", "DR", "CISC", "ACID", "OURS(4)", "OURS(2)"))
     print("-" * 80)
     sys.stdout.flush()
     fp = open("results/acc-dtype.dat", "w")
@@ -156,7 +157,7 @@ def test_accuracy_data_type():
              ("dtype", "dc", "ent", "dr", "cisc", "acid", "crisp"))
     for srcX in srcsX:
         nsamples = 0
-        nc_dc, nc_ent, nc_dr, nc_cisc, nc_acid, nc_crisp = 0, 0, 0, 0, 0, 0
+        nc_ent, nc_dr, nc_cisc, nc_acid, nc_Ours4, nc_Ours2 = 0, 0, 0, 0, 0, 0
         while nsamples < nsim:
             X = generate_X(srcX, sample_size)
             dom_f = list(set(X))
@@ -170,39 +171,40 @@ def test_accuracy_data_type():
 #                continue
 
             nsamples += 1
-            dc_score = dc(to_nested(X), to_nested(Y))
             ent_score = entropic(pd.DataFrame(np.column_stack((X, Y))))
             dr_score = anm(X, Y, ChiSquaredTest, 100)
             cisc_score = cisc(X, Y)
             acid_score = anm(X, Y, Entropy, 100)
-            crisp_score = anm(X, Y, StochasticComplexity, 100, True)
-            # dc_score = (0, 0)
-            # dr_score = (0, 0)
-            # cisc_score = (0, 0)
-            # acid_score = (0, 0)
-            # crisp_score = (0, 0)
+            Ours4_score = Cloud(X, Y, n_candidates=4)
+            Ours4_score.sort(key=lambda x: x[0])
+            Ours4_score = Ours4_score[0][1]
+            Ours2_score = Cloud(X, Y, n_candidates=2)
+            Ours2_score.sort(key=lambda x: x[0])
+            Ours2_score = Ours2_score[0][1]
 
-            nc_dc += int(dc_score[0] < dc_score[1])
+
             nc_ent += int(ent_score[0] < ent_score[1])
             nc_dr += int(dr_score[0] > level and dr_score[1] < level)
             nc_cisc += int(cisc_score[0] < cisc_score[1])
             nc_acid += int(acid_score[0] < acid_score[1])
-            nc_crisp += int(crisp_score[0] < crisp_score[1])
+            nc_Ours4 +=  Ours4_score=="to"
+            nc_Ours2 +=  Ours2_score=="to"
+            
 
         assert nsamples == nsim
 
-        acc_dc = nc_dc * 100 / nsim
         acc_ent = nc_ent * 100 / nsim
         acc_dr = nc_dr * 100 / nsim
         acc_cisc = nc_cisc * 100 / nsim
         acc_acid = nc_acid * 100 / nsim
-        acc_crisp = nc_crisp * 100 / nsim
+        acc_Ours4 = nc_Ours4 * 100 / nsim
+        acc_Ours2 = nc_Ours2 * 100 / nsim
         print("%18s%10.2f%10.2f%10.2f%10.2f%10.2f%10.2f" %
-              (srcX, acc_dc, acc_ent, acc_dr, acc_cisc, acc_acid, acc_crisp))
+              (srcX, acc_ent, acc_dr, acc_cisc, acc_acid, acc_Ours4, acc_Ours2))
         sys.stdout.flush()
         fp.write(
             "%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n" %
-            (srcX, acc_dc, acc_ent, acc_dr, acc_cisc, acc_acid, acc_crisp)
+            (srcX, acc_ent, acc_dr, acc_cisc, acc_acid, acc_Ours4, acc_Ours2)
         )
     print("-" * 80)
     sys.stdout.flush()
