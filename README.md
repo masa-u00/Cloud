@@ -22,8 +22,8 @@ import pandas as pd
 from src import Cloud
 
 # generate data from X causes Y
-x = np.random.randint(0, 5, 1000) # 5 cyclic
-y = (x + np.random.randint(0, 8, 1000)) % 8 # 8 cyclic
+x = np.random.randint(0, 5, 10000) # 5 cyclic
+y = (x + np.random.randint(0, 8, 10000)) % 8 # 8 cyclic
                                             # Of course, you do not need modulo operation
 
 # pass the data to Cloud
@@ -36,14 +36,16 @@ result = Cloud(x, y,
 You should see output like this:
 
 ```
-Cloud Inference Result:: X ⫫ Y   Δ=3.85
+Cloud Inference Result:: X ⇒ Y    Δ=2.13
 ```
+
 `result` is like this:
+
 ```
-[(5355.004242943733, 'indep'),
- (5358.854384890658, 'to'),
- (5363.219221043212, 'gets'),
- (5412.560143294632, 'confounder')]
+[(53272.67451834934, 'to'),
+ (53274.80253272231, 'indep'),
+ (53277.3410945044, 'gets'),
+ (53365.39411832997, 'confounder')]
 ```
 
 ## Licence
