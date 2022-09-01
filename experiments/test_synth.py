@@ -1,5 +1,6 @@
-"""This module assess the performance of various discrete causal inference
-methods on synthetic cause-effect pairs.
+"""
+This script is for experiment B in our paper.
+Experiment B: Comparison to existing methods in case of X → Y
 """
 from __future__ import division
 import math
@@ -9,10 +10,10 @@ import time
 import numpy as np
 import pandas as pd
 
-from src import ndm
+from src import Cloud
 
-random.seed(0)
-np.random.seed(0)
+random.seed(2022)
+np.random.seed(2022)
 
 def generate_X(type, size):
     if type == "uniform":
@@ -64,44 +65,22 @@ def generate_additive_N(n):
     return N
 
 
-def are_disjoint(sets):
-    disjoint = True
-    union = set()
-    for s in sets:
-        for x in s:
-            if x in union:
-                disjoint = False
-                break
-            union.add(x)
-    return disjoint
-
-
-def identifiable(dom_f, f, N):
-    # check if f(x) + supp N are disjoint for x in domain of f
-    supp_N = set(N)
-    decomps = []
-    for x in dom_f:
-        u = f[x]
-        supp_addition = set([u + n for n in supp_N])
-        decomps.append(supp_addition)
-    non_overlapping_noise = are_disjoint(decomps)
-    return not non_overlapping_noise
-
 if __name__ == "__main__":
     nsim = 1000
     sample_size = 1000
     img_f = range(-7, 8)
-    srcsX = ["uniform", "binomial", "negativeBinomial",
-         "geometric", "hypergeometric", "poisson", "multinomial"]
+    #srcsX = ["uniform", "binomial", "negativeBinomial",
+    #        "geometric", "hypergeometric", "poisson", "multinomial"]
+    srcsX = ["geometric", "hypergeometric", "poisson", "multinomial"]
     print("-" * 80)
-    print("%18s%10s" % ("X", "NDM"))
+    print("%18s%10s" % ("X", "Cloud"))
     print("-" * 80)
     sys.stdout.flush()
     fp = open("results/acc-dtype.dat", "w")
-    fp.write("%s\t%s\n" % ("dtype", "ndm"))
+    fp.write("%s\t%s\n" % ("dtype", "Cloud"))
     for srcX in srcsX:
         nsamples = 0
-        nc_ndm = 0
+        nc_Cloud = 0
         while nsamples < nsim:
             X = generate_X(srcX, sample_size)
             dom_f = list(set(X))
@@ -111,26 +90,23 @@ if __name__ == "__main__":
 
             assert len(X) == len(Y) == len(N)
 
-#            if not identifiable(dom_f, f, N):
-#                continue
-
             nsamples += 1
             sys.stdout.write("\r{}/{}".format(nsamples, nsim))
             sys.stdout.flush()
-            ndm_score = ndm(X, Y)
-            ndm_score.sort(key=lambda x: x[0])
-            ndm_score = ndm_score[0][1]
+            Cloud_score = Cloud(X, Y, n_candidates=2)
+            Cloud_score.sort(key=lambda x: x[0])
+            Cloud_score = Cloud_score[0][1]
 
-            if ndm_score == "to":
-                nc_ndm += 1
+            if Cloud_score == "to":
+                nc_Cloud += 1
 
         assert nsamples == nsim
 
-        acc_ndm = nc_ndm * 100 / nsim
-        print("%18s%10.2f" % (srcX, acc_ndm))
+        acc_Cloud = nc_Cloud * 100 / nsim
+        print("%18s%10.2f" % (srcX, acc_Cloud))
         sys.stdout.flush()
         fp.write(
-            "%s\t%.2f\n" % (srcX, acc_ndm)
+            "%s\t%.2f\n" % (srcX, acc_Cloud)
         )
     print("-" * 80)
     sys.stdout.flush()

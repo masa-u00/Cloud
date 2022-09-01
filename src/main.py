@@ -5,13 +5,10 @@ import numpy as np
 from math import ceil, log, sqrt
 from collections import Counter, defaultdict
 import itertools
-import pickle
-
 from sklearn.preprocessing import LabelEncoder
 
-MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
-#MODEL_CANDIDATES = ["to", "gets"]
 
+package_dir = Path(__file__).parent
 
 def log2(n):
     return log(n or 1, 2)
@@ -39,16 +36,6 @@ def C_MN(n: int, K: int):
 
     """
 
-    with open("src/model_cost_hash.pkl", mode="rb") as f:
-        try:
-            while True:
-                model_cost_dict = pickle.load(f)
-                if list(model_cost_dict.keys())[0] == K:
-                    log_total = model_cost_dict[K]
-                    return log_total
-        except EOFError:
-            pass
-
     total = 1
     b = 1
     d = 10 # 10 digit precision
@@ -73,9 +60,6 @@ def C_MN(n: int, K: int):
 
     if K == 1:
         log_total = log2(1.0)
-
-    with open("src/model_cost_hash.pkl", mode="ab") as f:
-        pickle.dump({K: log_total}, f)
 
     return log_total
 
@@ -138,7 +122,7 @@ def map_to_majority(X, Y):
         f[x] = frequent_y
     return f
 
-def update_regression(C, E, f, max_niterations=100):
+def update_regression(C, E, f, max_niterations=1000):
     """Update discrete regression with C as a cause variable and Y as a effect variable
     so that it maximize likelihood
     Args
@@ -152,7 +136,7 @@ def update_regression(C, E, f, max_niterations=100):
     supp_E = list(set(E))
     mod_E = len(supp_E)
     n = len(C)
-    
+
     # N_E's log likelihood
     # optimize f to minimize N_E's log likelihood
     cur_likelihood = 0
@@ -318,9 +302,33 @@ def sc(X, Y, model_type: str, X_ndistinct_vals=None, Y_ndistinct_vals=None):
     return stochastic_complexity
 
 
-def ndm(X, Y, ):
+def Cloud_print(score, llabel="X", rlabel="Y"):
+    score.sort(key=lambda x: x[0])
+    pred = score[0][1]
+    if pred == "to":
+        arrow = "⇒"
+    elif pred == "gets":
+        arrow = "⇐"
+    elif pred == "indep":
+        arrow = "⫫"
+    elif pred == "confounder":
+        arrow = "⇐  C ⇒"
+    conf = abs(score[0][0] - score[1][0])
+    out_str = "Cloud Inference Result:: %s %s %s\t Δ=%.2f" % \
+                          (llabel, arrow, rlabel, conf)
+    print(out_str)
+
+
+def Cloud(X, Y, n_candidates=4, is_print=False):
     """NML Discrete Model
     """
+    if n_candidates == 4:
+        MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
+    elif n_candidates == 2:
+        MODEL_CANDIDATES = ["to", "gets"]
+    else:
+        MODEL_CANDIDATES = ["to", "gets", "indep"]
+
     # prepare data
     le_X = LabelEncoder()
     X = le_X.fit_transform(X)
@@ -333,6 +341,9 @@ def ndm(X, Y, ):
         stochastic_complexity = sc(X, Y, model_type)
         results.append((stochastic_complexity, model_type))
 
+    if is_print:
+        Cloud_print(results)
+
     return results
 
 
@@ -343,13 +354,15 @@ if __name__ == "__main__":
     import numpy as np
     import argparse
     parser = argparse.ArgumentParser(description="NDM single experiment")
-    parser.add_argument("--N", type=int, default=10000, help="number of samples")
+    parser.add_argument("--N", type=int, default=100, help="number of samples")
     parser.add_argument("--m0", type=int, default=4, help="number of distinct values of the multinomial r.v X")
     parser.add_argument("--m1", type=int, default=5, help="number of distinct values of the multinomial r.v Y")
     args = parser.parse_args()
 
 
     # prepare simple dataset
+    # x0 → x1
+    # x0 ⫫ x2
     rand0 = [np.random.random() for _ in range(args.m0)]
     pvals0 = [rand_f / sum(rand0) for rand_f in rand0]
     rand1 = [np.random.random() for _ in range(args.m1)]
@@ -359,11 +372,11 @@ if __name__ == "__main__":
     x2 = np.random.choice(a=range(args.m1), p=pvals1, size=args.N)
 
     # unit test for proposed method
-    results = ndm(x0, x1)
+    results = Cloud(x0, x1, is_print=True)
     results.sort(key=lambda x: x[0])
     print(results)
 
-    results = ndm(x0, x2)
+    results = Cloud(x0, x2, is_print=True)
     results.sort(key=lambda x: x[0])
     print(results)
 

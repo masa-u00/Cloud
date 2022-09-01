@@ -8,5 +8,5 @@ from .main import (
         cause_effect_negloglikelihood,
         neg_log_likelihood,
         sc,
-        ndm
+        Cloud
 )
