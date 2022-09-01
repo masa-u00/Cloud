@@ -38,18 +38,6 @@ def C_MN(n: int, K: int):
 
     """
 
-#    with open(
-#            os.path.join(package_dir, "model_cost_hash.pkl"), 
-#            mode="rb") as f:
-#        try:
-#            while True:
-#                model_cost_dict = pickle.load(f)
-#                if list(model_cost_dict.keys())[0] == K:
-#                    log_total = model_cost_dict[K]
-#                    return log_total
-#        except EOFError:
-#            pass
-
     total = 1
     b = 1
     d = 10 # 10 digit precision
@@ -74,11 +62,6 @@ def C_MN(n: int, K: int):
 
     if K == 1:
         log_total = log2(1.0)
-
-#    with open(
-#            os.path.join(package_dir, "model_cost_hash.pkl"),
-#            mode="ab") as f:
-#        pickle.dump({K: log_total}, f)
 
     return log_total
 
