@@ -24,7 +24,7 @@ from src import Cloud
 # generate data from X causes Y
 x = np.random.randint(0, 5, 10000) # 5 cyclic
 y = (x + np.random.randint(0, 8, 10000)) % 8 # 8 cyclic
-                                            # Of course, you do not need modulo operation
+                                             # Of course, you do not need modulo operation
 
 # pass the data to Cloud
 result = Cloud(x, y,
@@ -52,4 +52,5 @@ Cloud Inference Result:: X ⇒ Y    Δ=2.13
 [MIT](https://github.com/Matsushima-lab/Cloud/blob/main/LICENSE)
 
 ## Reference
-[tcnksm](https://github.com/tcnksm)
+[kbudhath](https://github.molgen.mpg.de/EDA/cisc)
+Our implementation is greatly inspired by his.
