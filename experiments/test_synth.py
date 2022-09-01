@@ -12,8 +12,8 @@ import pandas as pd
 
 from src import Cloud
 
-random.seed(0)
-np.random.seed(0)
+random.seed(2022)
+np.random.seed(2022)
 
 def generate_X(type, size):
     if type == "uniform":
@@ -69,8 +69,9 @@ if __name__ == "__main__":
     nsim = 1000
     sample_size = 1000
     img_f = range(-7, 8)
-    srcsX = ["uniform", "binomial", "negativeBinomial",
-            "geometric", "hypergeometric", "poisson", "multinomial"]
+    #srcsX = ["uniform", "binomial", "negativeBinomial",
+    #        "geometric", "hypergeometric", "poisson", "multinomial"]
+    srcsX = ["geometric", "hypergeometric", "poisson", "multinomial"]
     print("-" * 80)
     print("%18s%10s" % ("X", "Cloud"))
     print("-" * 80)

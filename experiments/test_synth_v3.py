@@ -45,7 +45,7 @@ def map_randomly(dom_f, img_f):
 def test_decision_rate(args):
     nsim = 100
     sample_sizes = [200, 100, 1000]
-    causal_types = ["to", "gets", "indep", "confounder"]
+    causal_types = ["to", "indep", "confounder"]
 
     img_f = range(args.img)
     dom_f = range(args.dom)

@@ -44,8 +44,8 @@ def map_randomly(dom_f, img_f):
 
 def test_accuracy_4types(args):
     nsim = 1000
-    sample_sizes = [200,]# 1000, 10000, 100000]
-    causal_types = ["to", "indep", "confounder"]
+    sample_sizes = [100, 1000, 10000, 100000]
+    causal_types = ["to", "gets", "indep", "confounder"]
 
     img_f = range(args.img)
     dom_f = range(args.dom)
@@ -57,8 +57,8 @@ def test_accuracy_4types(args):
     fp.write("%s\t%s\t%s\n" % ("causal_type", "size", "Cloud"))
 
     dd = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for causal_type in causal_types:
-        for sample_size in sample_sizes:
+    for sample_size in sample_sizes:
+        for causal_type in causal_types:
             nc_Cloud = 0
             for i in range(nsim):
                 if causal_type == "to":
