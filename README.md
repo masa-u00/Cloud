@@ -1,6 +1,6 @@
 # Cloud:cloud:
 This is an implementation of the following paper:
-Masatoshi, Kobayashi., Kohei, Miyaguchi., Shin, Matsushima. [Detection of Unobserved Common Cause in Discrete Data Based on the MDL Principle]()
+[1] Masatoshi, Kobayashi., Kohei, Miyaguchi., Shin, Matsushima. (2022) [Detection of Unobserved Common Cause in Discrete Data Based on the MDL Principle]()
 
 
 ## Requirement
@@ -53,4 +53,5 @@ Cloud Inference Result:: X ⇒ Y    Δ=2.13
 
 ## Reference
 [kbudhath](https://github.molgen.mpg.de/EDA/cisc)
+
 Our implementation is greatly inspired by his.
