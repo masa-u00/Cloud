@@ -69,9 +69,8 @@ if __name__ == "__main__":
     nsim = 1000
     sample_size = 1000
     img_f = range(-7, 8)
-    #srcsX = ["uniform", "binomial", "negativeBinomial",
-    #        "geometric", "hypergeometric", "poisson", "multinomial"]
-    srcsX = ["geometric", "hypergeometric", "poisson", "multinomial"]
+    srcsX = ["uniform", "binomial", "negativeBinomial",
+            "geometric", "hypergeometric", "poisson", "multinomial"]
     print("-" * 80)
     print("%18s%10s" % ("X", "Cloud"))
     print("-" * 80)
