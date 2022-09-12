@@ -1,5 +1,5 @@
 # Cloud:cloud:
-This is an implementation of the following paper:
+This is an implementation of the following paper:  
 [1] Masatoshi, Kobayashi., Kohei, Miyaguchi., Shin, Matsushima. (2022) [Detection of Unobserved Common Cause in Discrete Data Based on the MDL Principle]()
 
 
@@ -24,11 +24,13 @@ from src import Cloud
 # generate data from X causes Y
 x = np.random.randint(0, 5, 10000) # 5 cyclic
 y = (x + np.random.randint(0, 8, 10000)) % 8 # 8 cyclic
-                                             # Of course, you do not need modulo operation
+                                             # modulo operation is optional
 
 # pass the data to Cloud
-result = Cloud(x, y,
-    n_model_candiates = 4, # select a set of model candidates
+result = Cloud(
+    X=x, 
+    Y=y,
+    n_model_candiates=4, # select a set of model candidates
     is_print=True # print out inferred causal direction 
 )
 ```
