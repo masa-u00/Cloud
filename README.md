@@ -16,10 +16,10 @@ $ python setup.py install
 ## Usage & Demo
 Here is a simple example to use Cloud:
 
-```
+```python
 import numpy as np
 import pandas as pd
-from src import Cloud
+from cloud import Cloud
 
 # generate data from X causes Y
 x = np.random.randint(0, 5, 10000) # 5 cyclic

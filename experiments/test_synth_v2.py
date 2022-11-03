@@ -3,6 +3,7 @@ This script is for experiment A (Reichenbach Problem) in our paper.
 """
 
 from __future__ import division
+import pprint
 import math
 import random
 import sys
@@ -12,7 +13,7 @@ import pandas as pd
 import json
 from collections import defaultdict
 
-from src import Cloud
+from cloud import Cloud
 
 random.seed(0)
 np.random.seed(0)
@@ -93,7 +94,7 @@ def test_accuracy_4types(args):
                 if Cloud_score == causal_type:
                     nc_Cloud += 1
 
-            print(dd)
+            pprint.pprint(dd)
             acc_Cloud = nc_Cloud * 100 / nsim
             print("%18s%18s%10.2f" % (causal_type, sample_size, acc_Cloud))
             sys.stdout.flush()

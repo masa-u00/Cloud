@@ -10,7 +10,7 @@ import time
 import numpy as np
 import pandas as pd
 
-from src import Cloud
+from cloud import Cloud
 
 random.seed(2022)
 np.random.seed(2022)

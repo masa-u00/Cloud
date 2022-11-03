@@ -19,7 +19,7 @@ setup(
         install_requires=read_requirements(),
         keywords=['Causal Discovery'],
         license='MIT',
-        packages=find_packages("src"),
+        packages=find_packages("cloud"),
 )
 
 

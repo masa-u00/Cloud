@@ -12,7 +12,7 @@ import pandas as pd
 import json
 from collections import defaultdict
 
-from src import Cloud
+from cloud import Cloud
 
 random.seed(0)
 np.random.seed(0)

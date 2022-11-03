@@ -12,7 +12,7 @@ sys.path.append("..")
 import numpy as np
 import pandas as pd
 
-from src import Cloud
+from cloud import Cloud
 
 def Cloud_print(method_name, score, llabel, rlabel):
     score.sort(key=lambda x: x[0])
