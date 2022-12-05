@@ -52,7 +52,7 @@ Cloud Inference Result:: X ⇒ Y    Δ=2.13
 ## Run Experimnt
 Here is a way to run a experiment in our paper (experiment B). If you want to run other experiments, choose other file names in `experiment/`
 ```
-cd expriments/ && python test_synth.py
+cd experiments/ && python test_synth.py
 ```
 
 ## Licence
