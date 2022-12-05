@@ -18,7 +18,6 @@ Here is a simple example to use Cloud:
 
 ```python
 import numpy as np
-import pandas as pd
 from cloud import Cloud
 
 # generate data from X causes Y
@@ -30,7 +29,7 @@ y = (x + np.random.randint(0, 8, 10000)) % 8 # 8 cyclic
 result = Cloud(
     X=x, 
     Y=y,
-    n_model_candiates=4, # select a set of model candidates
+    n_candidates=4, # select a set of model candidates
     is_print=True # print out inferred causal direction 
 )
 ```
@@ -41,13 +40,19 @@ You should see output like this:
 Cloud Inference Result:: X ⇒ Y    Δ=2.13
 ```
 
-`result` is like this:
+`result` is list of tuples (the first element is code-length L(z^n, M), and another is causal model label):
 
 ```
 [(53272.67451834934, 'to'),
  (53274.80253272231, 'indep'),
  (53277.3410945044, 'gets'),
  (53365.39411832997, 'confounder')]
+```
+
+## Run Experimnt
+Here is a way to run a experiment in our paper (experiment B). If you want to run other experiments, choose other file names in `experiment/`
+```
+cd expriments/ && python test_synth.py
 ```
 
 ## Licence
