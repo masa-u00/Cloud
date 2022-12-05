@@ -13,6 +13,7 @@ import pandas as pd
 import json
 from collections import defaultdict
 
+sys.path.append("..")
 from cloud import Cloud
 
 random.seed(0)
