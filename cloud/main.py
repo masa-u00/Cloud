@@ -320,7 +320,20 @@ def Cloud_print(score, llabel="X", rlabel="Y"):
 
 
 def Cloud(X, Y, n_candidates=4, is_print=False):
-    """NML Discrete Model
+    """main function in our study.
+    Cloud (Code Length-based method for Unobserved factor in Discrete data)
+
+    Args
+    ----------
+        X (sequence): sequence of discrete outcomes
+        Y (sequence): sequence of discrete outcomes
+        n_candidates (int): the number of model candidates
+        is_print (bool): whether or not to print inference result
+
+    Returns
+    ----------
+        (List) : each element is tuple that contains code length L(z^n, M) (float) and causal model' label (str)
+        
     """
     if n_candidates == 4:
         MODEL_CANDIDATES = ["to", "gets", "indep", "confounder"]
