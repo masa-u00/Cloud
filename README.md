@@ -31,6 +31,8 @@ result = Cloud(
     Y=y,
     n_candidates=4, # select a set of model candidates
     is_print=True # print out inferred causal direction 
+    X_ndistinct_vals=5,
+    Y_ndistinct_vals=8,
 )
 ```
 
