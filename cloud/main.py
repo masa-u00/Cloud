@@ -319,7 +319,7 @@ def Cloud_print(score, llabel="X", rlabel="Y"):
     print(out_str)
 
 
-def Cloud(X, Y, n_candidates=4, is_print=False):
+def Cloud(X, Y, n_candidates=4, is_print=False, X_ndistinct_vals=None, Y_ndistinct_vals=None):
     """main function in our study.
     Cloud (Code Length-based method for Unobserved factor in Discrete data)
 
@@ -329,6 +329,8 @@ def Cloud(X, Y, n_candidates=4, is_print=False):
         Y (sequence): sequence of discrete outcomes
         n_candidates (int): the number of model candidates
         is_print (bool): whether or not to print inference result
+        X_ndistinct_vals (int): number of distinct values of the multinomial r.v X.
+        Y_ndistinct_vals (int): number of distinct values of the multinomial r.v Y.
 
     Returns
     ----------
@@ -351,7 +353,7 @@ def Cloud(X, Y, n_candidates=4, is_print=False):
     results = []
 
     for model_type in MODEL_CANDIDATES:
-        stochastic_complexity = sc(X, Y, model_type)
+        stochastic_complexity = sc(X, Y, model_type, X_ndistinct_vals, Y_ndistinct_vals)
         results.append((stochastic_complexity, model_type))
 
     if is_print:
@@ -385,11 +387,11 @@ if __name__ == "__main__":
     x2 = np.random.choice(a=range(args.m1), p=pvals1, size=args.N)
 
     # unit test for proposed method
-    results = Cloud(x0, x1, is_print=True)
+    results = Cloud(x0, x1, is_print=True, X_ndistinct_vals=args.m0, Y_ndistinct_vals=args.m1)
     results.sort(key=lambda x: x[0])
     print(results)
 
-    results = Cloud(x0, x2, is_print=True)
+    results = Cloud(x0, x2, is_print=True, X_ndistinct_vals=args.m0, Y_ndistinct_vals=args.m1)
     results.sort(key=lambda x: x[0])
     print(results)
 
